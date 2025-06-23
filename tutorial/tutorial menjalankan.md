@@ -63,8 +63,6 @@ Jalankan program klien sensor dengan Cargo
 Anda akan mulai melihat log pembacaan suhu dan kelembapan di terminal ini. Secara bersamaan, di Terminal 3 (Server), Anda juga akan melihat log bahwa data diterima dan disimpan.
 
 ### Membuka Toko (Klien/Antarmuka Pengguna)
-Tujuan: Menjalankan antarmuka pengguna di mana interaksi akhir (pembelian dan visualisasi data) terjadi.
-
 Buka Terminal 5 - Jalankan ANTARMUKA PENGGUNA:
 Anda memiliki dua pilihan antarmuka. Jalankan salah satu (atau keduanya di terminal yang berbeda).
 
