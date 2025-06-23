@@ -1,1 +1,107 @@
+## Tutorial Lengkap Menjalankan Proyek: Dari Awal Hingga Akhir
+Dokumen ini adalah panduan langkah-demi-langkah untuk menginstal, mengkonfigurasi, dan menjalankan keseluruhan sistem Marketplace Data Sensor IoT. Tutorial ini akan memandu Anda melalui setiap komponen, dari backend hingga antarmuka pengguna.
 
+Prasyarat
+Sebelum memulai, pastikan semua perangkat lunak esensial sudah terinstal di sistem operasi Anda (direkomendasikan Ubuntu/Linux):
+
+Node.js dan npm
+
+Rust dan Cargo
+
+Python 3 dan pip
+
+Ganache (sudo npm install -g ganache)
+
+InfluxDB (sudah terinstal dan service berjalan)
+
+Ekstensi Browser MetaMask
+
+Fase A: Memulai Fondasi (Blockchain dengan Hardhat)
+Tujuan: Menghidupkan jaringan blockchain lokal dan menempatkan "mesin kasir digital" (smart contract) kita di atasnya menggunakan Hardhat.
+
+Buka Terminal 1 - Jalankan GANACHE:
+Jalankan perintah ini untuk memulai blockchain lokal. Opsi -m dengan mnemonic yang sama memastikan Anda selalu mendapatkan 10 akun yang sama setiap saat, lengkap dengan saldo 100 ETH untuk development. Biarkan terminal ini tetap terbuka.
+
+ganache -m "myth like bonus scare over problem client lizard pioneer submit female collect"
+
+(Catatan: Lakukan setup satu kali dengan mengimpor salah satu private key dari output ini ke MetaMask Anda untuk mengatasi masalah saldo nol).
+
+Buka Terminal 2 - Lakukan DEPLOYMENT dengan HARDHAT:
+Setiap kali setelah Ganache dimulai, kita harus men-deploy ulang kontrak kita untuk mendapatkan alamat yang baru dan valid. Perintah npx hardhat run adalah cara kita menyuruh Hardhat untuk menjalankan skrip.
+
+# Masuk ke folder blockchain proyek Anda
+cd /path/ke/proyek/blockchain
+
+# Jalankan skrip deployment menggunakan Hardhat ke jaringan localhost
+npx hardhat run scripts/deploy.js --network localhost
+
+Tunggu hingga muncul pesan ✅ Alamat & ABI disimpan di deployedAddress.json. Ini artinya "peta" alamat kontrak Anda sudah diperbarui dan siap digunakan oleh komponen lain.
+
+Fase B: Menghidupkan Otak Proyek (Backend)
+Tujuan: Menjalankan program inti yang akan menerima data dari sensor, menyimpannya ke database, dan menyiarkannya secara real-time.
+
+Buka Terminal 3 - Jalankan SERVER RUST:
+Server ini perlu dijalankan setelah proses deployment selesai agar ia dapat membaca file deployedAddress.json yang terbaru untuk mengetahui alamat kontrak yang benar.
+
+# Masuk ke folder server backend
+cd /path/ke/proyek/backend_services/server
+
+# Jalankan program server dengan Cargo
+cargo run
+
+Tunggu hingga Anda melihat pesan konfirmasi di terminal, seperti [TCP] Server TCP berjalan... dan [API] Server API & WebSocket berjalan.... Biarkan terminal ini tetap terbuka.
+
+Buka Terminal 4 - Jalankan KLIEN SENSOR:
+Setelah server utama siap, kita bisa menghidupkan "petani" yang akan mengirimkan data.
+
+# Masuk ke folder klien sensor
+cd /path/ke/proyek/backend_services/itil
+
+# Jalankan program klien sensor dengan Cargo
+cargo run
+
+Anda akan mulai melihat log pembacaan suhu dan kelembapan di terminal ini. Secara bersamaan, di Terminal 3 (Server), Anda juga akan melihat log bahwa data diterima dan disimpan.
+
+Fase C: Membuka Toko (Klien/Antarmuka Pengguna)
+Tujuan: Menjalankan antarmuka pengguna di mana interaksi akhir (pembelian dan visualisasi data) terjadi.
+
+Buka Terminal 5 - Jalankan ANTARMUKA PENGGUNA:
+Anda memiliki dua pilihan antarmuka. Jalankan salah satu (atau keduanya di terminal yang berbeda).
+
+Pilihan 1: Aplikasi Web React
+
+# Masuk ke folder frontend web
+cd /path/ke/proyek/frontend_dapp
+
+# Jalankan server pengembangan React
+npm start
+
+Sebuah tab browser akan otomatis terbuka ke alamat http://localhost:3000 (atau port lain yang tersedia).
+
+Pilihan 2: Dashboard Desktop PyQt5
+
+# Masuk ke folder dashboard desktop
+cd /path/ke/proyek/desktop_dashboard
+
+# Aktifkan lingkungan virtual Python
+source venv/bin/activate
+
+# Jalankan aplikasi desktop
+python3 dashboard.py
+
+Sebuah jendela aplikasi desktop akan muncul di layar Anda.
+
+Fase D: Alur Pengujian Akhir dari Sisi Pengguna
+Setelah semua komponen berjalan, ini adalah alur yang akan dialami oleh pengguna:
+
+Hubungkan Wallet: Di aplikasi klien (web atau desktop), pengguna mengklik tombol "Hubungkan Wallet".
+
+Setujui di MetaMask: Sebuah pop-up MetaMask akan muncul. Pastikan MetaMask Anda berada di jaringan Ganache dan akun "Imported" (yang memiliki saldo 100 ETH) yang terpilih. Setujui koneksi.
+
+Lakukan Pembelian: Setelah terhubung, pengguna mengklik tombol "Beli Akses & Tampilkan Data".
+
+Konfirmasi Transaksi: Setujui transaksi pembayaran yang muncul di pop-up MetaMask.
+
+Proses Otomatis: Setelah transaksi berhasil, aplikasi akan secara otomatis melakukan verifikasi ke backend dan kemudian membuka koneksi WebSocket.
+
+Selesai! Pengguna sekarang akan melihat data sensor mengalir secara real-time ke dashboard mereka, baik dalam bentuk kartu data maupun grafik yang terus diperbarui.
